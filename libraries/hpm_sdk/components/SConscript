@@ -1,0 +1,32 @@
+Import('rtconfig')
+from building import *
+
+#get current directory
+cwd = GetCurrentDir()
+
+CPPDEFINES=[]
+
+# Update include path
+path = [ cwd + '/debug_console', cwd + '/touch', cwd + '/usb']
+
+# The set of source files associated with this SConscript file.
+src = []
+
+src += ['debug_console/hpm_debug_console.c']
+if GetDepend(['BSP_USING_TOUCH_GT911']):
+	src += ['touch/gt911/hpm_touch_gt911.c']
+	src += ['touch/gt911/hpm_gt911.c']
+	path += ['touch/gt911']
+	CPPDEFINES = ['CONFIG_TOUCH_GT911=1']
+if GetDepend(['BSP_USING_TOUCH_FT5406']):
+	src += ['touch/ft5406/hpm_touch_ft5406.c']
+	src += ['touch/ft5406/hpm_ft5406.c']
+	path += ['touch/ft5406']
+	CPPDEFINES = ['CONFIG_TOUCH_FT5406=1']
+if GetDepend(['BSP_USING_USB_DEVICE']):
+	src += ['usb/device/hpm_usb_device.c']
+	path += ['usb/device']
+
+group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)
+
+Return ('group')

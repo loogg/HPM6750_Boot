@@ -1,0 +1,7 @@
+excluded_targets:
+  - flash_ # exclude all flash based target for core1
+debug:
+    ses:
+      auto_start_gdb_server: false
+      gdb_server_port: 3334
+      gdb_server_reset_command: "halt"

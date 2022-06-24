@@ -1,0 +1,12 @@
+[
+ {
+  "path": "/packages/iot/agile_modbus", 
+  "ver": "v1.1.0", 
+  "name": "AGILE_MODBUS"
+ }, 
+ {
+  "path": "/packages/system/fal", 
+  "ver": "v1.0.0", 
+  "name": "FAL"
+ }
+]

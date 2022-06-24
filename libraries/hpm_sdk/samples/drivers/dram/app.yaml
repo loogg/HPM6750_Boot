@@ -1,0 +1,2 @@
+excluded_targets:
+  - flash_sdram # exclude all flash based target for core1
