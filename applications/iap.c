@@ -140,8 +140,10 @@ int iap_process(void) {
                 continue;
             }
 
-            for (int i = 0; i < total_len; i++) {
-                _ctx_read_buf[i] = ctx->read_buf[i];
+            if (ctx->read_buf != _ctx_read_buf) {
+                for (int i = 0; i < total_len; i++) {
+                    _ctx_read_buf[i] = ctx->read_buf[i];
+                }
             }
 
             ctx->read_buf = _ctx_read_buf;
