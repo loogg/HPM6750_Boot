@@ -32,6 +32,16 @@
   | app | 1 * 1024 * 1024 | 1 * 1024 * 1024 |
   | download | 2 * 1024 * 1024 | 1 * 1024 * 1024 |
 
+## APP 链接文件修改
+
+删除链接文件中 `BootROM` 的 `Section`, 只保留 `APP Section`
+
+![pic2](./figures/2.png)
+
+修改完后的如下：
+
+![pic3](./figures/3.png)
+
 ## 固件升级
 
 ### APP 中下载到 download 分区
