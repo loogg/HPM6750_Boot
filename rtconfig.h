@@ -139,8 +139,8 @@
 
 /* end of IoT Cloud */
 #define PKG_USING_AGILE_MODBUS
-#define PKG_USING_AGILE_MODBUS_V110
-#define PKG_AGILE_MODBUS_VER_NUM 0x10100
+#define PKG_USING_AGILE_MODBUS_V111
+#define PKG_AGILE_MODBUS_VER_NUM 0x10101
 /* end of IoT - internet of things */
 
 /* security packages */
