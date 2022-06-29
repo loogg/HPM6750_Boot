@@ -11,11 +11,14 @@
 #ifdef BSP_USING_SDXC
 #include <rthw.h>
 #include <rtdevice.h>
-#include <rtdbg.h>
 
 #include "board.h"
 #include "hpm_sdxc_drv.h"
 #include "hpm_l1c_drv.h"
+
+#define DBG_TAG "drv.sdio"
+#define DBG_LVL DBG_WARNING
+#include <rtdbg.h>
 
 
 #define CACHE_LINESIZE                  HPM_L1C_CACHELINE_SIZE

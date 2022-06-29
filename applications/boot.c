@@ -21,8 +21,8 @@ enum {
     BOOT_CMPRS_STAT_MASK = 0xFL << 8,
 };
 
-#define IAP_FIRM_BUF_SIZE 4096
-static uint8_t firm_buf[IAP_FIRM_BUF_SIZE];
+#define FIRM_BUF_SIZE 4096
+static uint8_t _firm_buf[FIRM_BUF_SIZE];
 
 static void print_progress(size_t cur_size, size_t total_size) {
     static uint8_t progress_sign[100 + 1];
@@ -90,12 +90,11 @@ static int calc_part_firm_crc32(const struct fal_partition *part, uint32_t firm_
 
     crc32_init(&ctx);
     do {
-        length = fal_partition_read(part, firm_off + total_length, firm_buf,
-                                    firm_len - total_length > IAP_FIRM_BUF_SIZE
-                                        ? IAP_FIRM_BUF_SIZE
-                                        : firm_len - total_length);
+        length = fal_partition_read(
+            part, firm_off + total_length, _firm_buf,
+            firm_len - total_length > FIRM_BUF_SIZE ? FIRM_BUF_SIZE : firm_len - total_length);
         if (length <= 0) return -RT_ERROR;
-        crc32_update(&ctx, firm_buf, length);
+        crc32_update(&ctx, _firm_buf, length);
         total_length += length;
 
     } while (total_length < firm_len);
@@ -134,7 +133,8 @@ int firm_upgrade(const struct fal_partition *src_part, firm_pkg_t *src_header,
                  const struct fal_partition *app_part) {
     rt_err_t result = RT_EOK;
     firm_pkg_t app_header = {0};
-    uint32_t total_length = 0, length = 0;
+    uint32_t total_length = 0;
+    int length = 0;
 
     result = check_part_firm(app_part, &app_header);
 
@@ -151,13 +151,13 @@ int firm_upgrade(const struct fal_partition *src_part, firm_pkg_t *src_header,
     LOG_I("The partition \'%s\' erase success.", app_part->name);
 
     do {
-        length = fal_partition_read(src_part, sizeof(firm_pkg_t) + total_length, firm_buf,
-                                    src_header->raw_size - total_length > IAP_FIRM_BUF_SIZE
-                                        ? IAP_FIRM_BUF_SIZE
+        length = fal_partition_read(src_part, sizeof(firm_pkg_t) + total_length, _firm_buf,
+                                    src_header->raw_size - total_length > FIRM_BUF_SIZE
+                                        ? FIRM_BUF_SIZE
                                         : src_header->raw_size - total_length);
         if (length <= 0) return -RT_ERROR;
 
-        result = fal_partition_write(app_part, total_length, firm_buf, length);
+        result = fal_partition_write(app_part, total_length, _firm_buf, length);
 
         if (result <= 0) return -RT_ERROR;
 

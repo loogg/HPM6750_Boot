@@ -1,8 +1,9 @@
 #include "system.h"
 #include "boot.h"
 #include <board.h>
-#include "iap.h"
 #include <rthw.h>
+#include "iap.h"
+#include "sdcard.h"
 
 #define DBG_TAG "system"
 #define DBG_LVL DBG_LOG
@@ -34,6 +35,7 @@ void system_process(void) {
 
     if ((g_system.step == SYSTEM_STEP_WAIT_SYNC) || (g_system.step == SYSTEM_STEP_BOOT_PROCESS)) {
         if (iap_process() != RT_EOK) g_system.step = SYSTEM_STEP_ERROR;
+        if (sdcard_check() == RT_EOK) g_system.step = SYSTEM_STEP_SDCARD;
     }
 
     switch (g_system.step) {
@@ -44,7 +46,7 @@ void system_process(void) {
                 break;
             }
 
-            g_system.step++;
+            g_system.step = SYSTEM_STEP_VERIFY_DOWNLOAD;
         } break;
 
         case SYSTEM_STEP_VERIFY_DOWNLOAD: {
@@ -57,7 +59,7 @@ void system_process(void) {
             if (rc != RT_EOK) {
                 LOG_E("Get OTA \"%s\" partition firmware filed!", download_part->name);
                 _pre_tick = rt_tick_get();
-                g_system.step++;
+                g_system.step = SYSTEM_STEP_WAIT_SYNC;
             } else {
                 if ((download_header->raw_size + sizeof(firm_pkg_t)) > app_part->len) {
                     LOG_E("The partition \'%s\' length is (%d), need (%d)!", app_part->name,
@@ -68,7 +70,7 @@ void system_process(void) {
                     LOG_I("The partition \'%s\' erase success.", download_part->name);
 
                     _pre_tick = rt_tick_get();
-                    g_system.step++;
+                    g_system.step = SYSTEM_STEP_WAIT_SYNC;
                     break;
                 }
 
@@ -81,7 +83,7 @@ void system_process(void) {
             if (g_system.is_remain) {
                 LOG_I("sync:%u tick, sync cmd cnt:%u, enter boot", rt_tick_get() - _pre_tick,
                       g_system.sync_cmd_cnt);
-                g_system.step++;
+                g_system.step = SYSTEM_STEP_BOOT_PROCESS;
                 break;
             }
 
@@ -96,9 +98,15 @@ void system_process(void) {
         case SYSTEM_STEP_BOOT_PROCESS: {
             if (g_system.is_quit) {
                 LOG_I("sync cmd cnt:%u, will jump.", g_system.sync_cmd_cnt);
-                g_system.step++;
+                g_system.step = SYSTEM_STEP_UPDATE;
                 break;
             }
+        } break;
+
+        case SYSTEM_STEP_SDCARD: {
+            if (sdcard_update() == RT_EOK) g_system.download_verify_rc = RT_EOK;
+
+            g_system.step = SYSTEM_STEP_UPDATE;
         } break;
 
         case SYSTEM_STEP_UPDATE: {

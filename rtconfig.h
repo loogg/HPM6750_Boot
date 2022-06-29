@@ -10,6 +10,7 @@
 #define RT_THREAD_PRIORITY_32
 #define RT_THREAD_PRIORITY_MAX 32
 #define RT_TICK_PER_SECOND 1000
+#define RT_USING_OVERFLOW_CHECK
 #define IDLE_THREAD_STACK_SIZE 1024
 
 /* kservice optimization */
@@ -22,6 +23,9 @@
 
 #define RT_USING_SEMAPHORE
 #define RT_USING_MUTEX
+#define RT_USING_EVENT
+#define RT_USING_MAILBOX
+#define RT_USING_MESSAGEQUEUE
 /* end of Inter-Thread communication */
 
 /* Memory Management */
@@ -70,6 +74,28 @@
 
 /* Device virtual file system */
 
+#define RT_USING_DFS
+#define DFS_USING_WORKDIR
+#define DFS_FILESYSTEMS_MAX 4
+#define DFS_FILESYSTEM_TYPES_MAX 4
+#define DFS_FD_MAX 16
+#define RT_USING_DFS_ELMFAT
+
+/* elm-chan's FatFs, Generic FAT Filesystem Module */
+
+#define RT_DFS_ELM_CODE_PAGE 437
+#define RT_DFS_ELM_WORD_ACCESS
+#define RT_DFS_ELM_USE_LFN_3
+#define RT_DFS_ELM_USE_LFN 3
+#define RT_DFS_ELM_LFN_UNICODE_0
+#define RT_DFS_ELM_LFN_UNICODE 0
+#define RT_DFS_ELM_MAX_LFN 255
+#define RT_DFS_ELM_DRIVES 2
+#define RT_DFS_ELM_MAX_SECTOR_SIZE 512
+#define RT_DFS_ELM_REENTRANT
+#define RT_DFS_ELM_MUTEX_TIMEOUT 3000
+/* end of elm-chan's FatFs, Generic FAT Filesystem Module */
+#define RT_USING_DFS_DEVFS
 /* end of Device virtual file system */
 
 /* Device Drivers */
@@ -78,6 +104,14 @@
 #define RT_PIPE_BUFSZ 512
 #define RT_USING_SERIAL
 #define RT_USING_SERIAL_V2
+#define RT_USING_RTC
+#define RT_USING_SOFT_RTC
+#define RT_USING_SDIO
+#define RT_SDIO_STACK_SIZE 1024
+#define RT_SDIO_THREAD_PRIORITY 15
+#define RT_MMCSD_STACK_SIZE 2048
+#define RT_MMCSD_THREAD_PREORITY 22
+#define RT_MMCSD_MAX_PARTITION 16
 
 /* Using USB */
 
@@ -87,6 +121,7 @@
 /* POSIX layer and C standard library */
 
 #define RT_USING_LIBC
+#define RT_USING_POSIX
 #define RT_LIBC_USING_TIME
 #define RT_LIBC_DEFAULT_TIMEZONE 8
 /* end of POSIX layer and C standard library */
@@ -230,6 +265,15 @@
 
 #define SOC_HPM6000
 
+/* Onboard Peripheral Drivers */
+
+/* Enable File System */
+
+#define BSP_USING_FS
+#define BSP_USING_SDCARD_FATFS
+/* end of Enable File System */
+/* end of Onboard Peripheral Drivers */
+
 /* On-chip Peripheral Drivers */
 
 #define BSP_USING_UART
@@ -239,6 +283,8 @@
 #define BSP_USING_UART4
 #define BSP_UART4_RX_BUFSIZE 1024
 #define BSP_UART4_TX_BUFSIZE 0
+#define BSP_USING_SDXC
+#define BSP_USING_SDXC1
 #define BSP_USING_DRAM
 #define INIT_EXT_RAM_FOR_DATA
 /* end of On-chip Peripheral Drivers */

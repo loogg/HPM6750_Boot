@@ -7,6 +7,25 @@ config SOC_HPM6000
     select RT_USING_USER_MAIN
     default y
 
+menu "Onboard Peripheral Drivers"
+
+    menu "Enable File System"
+        config BSP_USING_FS
+            bool
+            default n
+
+        config BSP_USING_SDCARD_FATFS
+            bool "Enable SDCARD (FATFS)"
+            select BSP_USING_SDXC
+            select RT_USING_DFS
+            select RT_USING_DFS_ELMFAT
+            select BSP_USING_FS
+            default n
+
+    endmenu
+
+endmenu
+
 menu "On-chip Peripheral Drivers"
     config BSP_USING_GPIO
         bool "Enable GPIO"
