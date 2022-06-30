@@ -1021,7 +1021,9 @@ static int hpm_uart_config(void)
 #endif
 
 #ifdef BSP_USING_UART13
+#ifdef RT_SERIAL_USING_DMA
     uarts[HPM_UART13_INDEX].dma_flags = 0;
+#endif
     uarts[HPM_UART13_INDEX].serial->config = config;
     uarts[HPM_UART13_INDEX].serial->config.rx_bufsz = BSP_UART13_RX_BUFSIZE;
     uarts[HPM_UART13_INDEX].serial->config.tx_bufsz = BSP_UART13_TX_BUFSIZE;

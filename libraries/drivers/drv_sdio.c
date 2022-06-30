@@ -192,6 +192,21 @@ static void hpm_sdmmc_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *r
         xfer.data = NULL;
     }
 
+    if ((req->data != NULL) && (req->data->blks > 1)) {
+        sdxc_command_t set_block_count_cmd = {0};
+        set_block_count_cmd.cmd_index = SET_BLOCK_COUNT;
+        set_block_count_cmd.resp_type = sdxc_dev_resp_r1;
+        set_block_count_cmd.cmd_flags = 0;
+        set_block_count_cmd.cmd_argument = req->data->blks;
+        sdxc_send_command(mmcsd->sdxc_base, &set_block_count_cmd);
+        sdxc_wait_cmd_done(mmcsd->sdxc_base, &set_block_count_cmd, true);
+    }
+
+    if (xfer.data != NULL)
+    {
+        // rt_kprintf("blocks=%d, block_size=%dbytes, buf_addr=%08x\n", xfer.data->block_cnt, xfer.data->block_size,
+        //         xfer.data->rx_data !=NULL ? (uint32_t)xfer.data->rx_data : (uint32_t)xfer.data->tx_data);
+    }
     err = sdxc_transfer_blocking(mmcsd->sdxc_base, &adma_config, &xfer);
     LOG_I("cmd=%d, arg=%x\n", cmd->cmd_code, cmd->arg);
     if (err != status_success)
@@ -254,7 +269,7 @@ static void hpm_sdmmc_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *r
         aligned_buf = NULL;
     }
 
-    if (req->stop->cmd_code == STOP_TRANSMISSION)
+    if ((req->stop != RT_NULL) && (req->stop->cmd_code == STOP_TRANSMISSION))
     {
         sdxc_cmd.cmd_index = STOP_TRANSMISSION;
         sdxc_cmd.resp_type = sdxc_dev_resp_r1b;

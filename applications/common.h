@@ -25,7 +25,6 @@ typedef struct {
 
 enum {
     SYSTEM_STEP_INIT = 0,
-    SYSTEM_STEP_VERIFY_DOWNLOAD,
     SYSTEM_STEP_WAIT_SYNC,
     SYSTEM_STEP_BOOT_PROCESS,
     SYSTEM_STEP_SDCARD,
@@ -36,11 +35,8 @@ enum {
 typedef struct {
     const struct fal_partition *app_part;
     const struct fal_partition *download_part;
-    firm_pkg_t download_header;
-    uint32_t sync_cmd_cnt;
     int is_remain;
     int is_quit;
-    int download_verify_rc;
     int step;
 } g_system_t;
 extern g_system_t g_system;

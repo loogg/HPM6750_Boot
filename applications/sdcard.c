@@ -2,7 +2,7 @@
 #include <dfs_fs.h>
 #include <unistd.h>
 #include "sdcard.h"
-#include "common.h"
+#include "boot.h"
 
 #define DBG_TAG "sdcard"
 #define DBG_LVL DBG_LOG
@@ -15,11 +15,11 @@
 enum {
     SDCARD_CHECK_STEP_NULL = 0,
     SDCARD_CHECK_STEP_FIND,
-    SDCARD_CHECK_STEP_MOUNT_SUCCESS,
-    SDCARD_CHECK_STEP_MOUNT_FAIL
+    SDCARD_CHECK_STEP_SUCCESS,
+    SDCARD_CHECK_STEP_FAIL,
 };
 
-#define FIRM_BUF_SIZE 512
+#define FIRM_BUF_SIZE 4096
 static uint8_t _firm_buf[FIRM_BUF_SIZE];
 static uint8_t _check_step = SDCARD_CHECK_STEP_FIND;
 
@@ -49,24 +49,23 @@ static void print_progress(size_t cur_size, size_t total_size) {
 
 int sdcard_update(void) {
     const struct fal_partition *download_part = g_system.download_part;
-    firm_pkg_t *download_header = &g_system.download_header;
     int rc = RT_EOK, ret = RT_EOK;
     struct stat s = {0};
     uint32_t total_length = 0;
     int length = 0;
 
-    if (_check_step != SDCARD_CHECK_STEP_MOUNT_SUCCESS) {
-        LOG_W("sdcard is not mounted.");
+    if (_check_step != SDCARD_CHECK_STEP_SUCCESS) {
+        LOG_W("sdcard is not checked success.");
         return -RT_ERROR;
     }
 
     if (stat(SDCARD_FIRM_PATH, &s) != 0) {
-        LOG_W("get file information failed.");
+        LOG_W("[update] get file %s information failed.", SDCARD_FIRM_PATH);
         return -RT_ERROR;
     }
 
     if (s.st_size <= 0) {
-        LOG_W("%s is a empty file.", SDCARD_FIRM_PATH);
+        LOG_W("[update] %s is a empty file.", SDCARD_FIRM_PATH);
         return -RT_ERROR;
     }
 
@@ -107,9 +106,6 @@ int sdcard_update(void) {
 
         if (total_length < s.st_size) break;
 
-        rc = check_part_firm(download_part, download_header);
-        if (rc != RT_EOK) break;
-
         ret = RT_EOK;
     } while (0);
 
@@ -127,14 +123,29 @@ int sdcard_check(void) {
             int rc = dfs_mount(SDCARD_DEVICE_NAME, SDCARD_ROOT, "elm", 0, 0);
             if (rc == RT_EOK) {
                 LOG_I("sd card mount to '%s'", SDCARD_ROOT);
-                _check_step = SDCARD_CHECK_STEP_MOUNT_SUCCESS;
+
+                _check_step = SDCARD_CHECK_STEP_FAIL;
+                do {
+                    struct stat s = {0};
+                    if (stat(SDCARD_FIRM_PATH, &s) != 0) {
+                        LOG_W("[check] get file %s information failed.", SDCARD_FIRM_PATH);
+                        break;
+                    }
+
+                    if (s.st_size <= 0) {
+                        LOG_W("[check] %s is a empty file.", SDCARD_FIRM_PATH);
+                        break;
+                    }
+
+                    _check_step = SDCARD_CHECK_STEP_SUCCESS;
+                } while (0);
             } else {
                 LOG_W("sd card mount to '%s' failed!", SDCARD_ROOT);
-                _check_step = SDCARD_CHECK_STEP_MOUNT_FAIL;
+                _check_step = SDCARD_CHECK_STEP_FAIL;
             }
         } break;
 
-        case SDCARD_CHECK_STEP_MOUNT_SUCCESS:
+        case SDCARD_CHECK_STEP_SUCCESS:
             return RT_EOK;
 
         default:

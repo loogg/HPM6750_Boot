@@ -12,7 +12,7 @@
 #define RS485_EN_RX()
 #define RS485_EN_TX()
 
-#define RS485_DEVICE_NAME "uart4"
+#define RS485_DEVICE_NAME "uart13"
 
 static rt_sem_t _rx_notice = RT_NULL;
 static rt_device_t _rs485_dev = RT_NULL;

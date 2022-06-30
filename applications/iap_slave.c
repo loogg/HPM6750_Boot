@@ -16,6 +16,12 @@ enum {
     IAP_CMD_UPDATE
 };
 
+enum {
+    IAP_FLASH_NULL = 0,
+    IAP_FLASH_APP,
+    IAP_FLASH_DOWNLOAD
+};
+
 enum { IAP_STEP_NULL = 0, IAP_STEP_START, IAP_STEP_WRITE, IAP_STEP_UPDATE };
 
 static uint8_t _iap_step = IAP_STEP_NULL;
@@ -72,6 +78,9 @@ int compute_data_length_after_meta_callback(agile_modbus_t *ctx, uint8_t *msg, i
  *             (其他负数异常码: 从机会打包异常响应数据)
  */
 int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_info) {
+    static uint32_t _sync_cmd_cnt = 0;
+    static const struct fal_partition *using_part = RT_NULL;
+
     int function = slave_info->sft->function;
     if (function != AGILE_MODBUS_FC_IAP) {
         *(slave_info->rsp_length) = 0;
@@ -97,8 +106,12 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
 
     switch (cmd) {
         case IAP_CMD_SYNC: {
-            g_system.sync_cmd_cnt++;
-            if (g_system.sync_cmd_cnt >= 3) g_system.is_remain = 1;
+            _sync_cmd_cnt++;
+            if (_sync_cmd_cnt == 3) {
+                LOG_I("will enter boot");
+                g_system.is_remain = 1;
+            }
+
             *(slave_info->rsp_length) = 0;
         } break;
 
@@ -109,14 +122,33 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
         } break;
 
         case IAP_CMD_START: {
-            const struct fal_partition *app_part = g_system.app_part;
             uint32_t firm_len;
+            const struct fal_partition *pre_part = using_part;
 
-            if (data_len != 4) return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
+            if (data_len != 5) return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
 
-            firm_len = (((uint32_t)data_ptr[0] << 24) + ((uint32_t)data_ptr[1] << 16) +
-                        ((uint32_t)data_ptr[2] << 8) + (uint32_t)data_ptr[3]);
-            if (firm_len > app_part->len) return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
+            switch (data_ptr[0]) {
+                case IAP_FLASH_APP: {
+                    LOG_I("using app part");
+                    using_part = g_system.app_part;
+                } break;
+
+                case IAP_FLASH_DOWNLOAD: {
+                    LOG_I("using download part");
+                    using_part = g_system.download_part;
+                } break;
+
+                default:
+                    return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
+            }
+
+            if(using_part != pre_part) {
+                _iap_step = IAP_STEP_NULL;
+            }
+
+            firm_len = (((uint32_t)data_ptr[1] << 24) + ((uint32_t)data_ptr[2] << 16) +
+                        ((uint32_t)data_ptr[3] << 8) + (uint32_t)data_ptr[4]);
+            if (firm_len > using_part->len) return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
 
             _total_len = firm_len;
             _write_len = 0;
@@ -134,8 +166,8 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
                 break;
             }
 
-            if (fal_partition_erase_all(app_part) <= 0) {
-                LOG_E("erase %s partition failed.", app_part->name);
+            if (fal_partition_erase_all(using_part) <= 0) {
+                LOG_E("erase %s partition failed.", using_part->name);
                 ctx->send_buf[send_index++] = 0;
                 *(slave_info->rsp_length) = send_index;
                 break;
@@ -148,10 +180,14 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
         } break;
 
         case IAP_CMD_WRITE: {
-            const struct fal_partition *app_part = g_system.app_part;
             uint16_t packet_num = 0;
             uint16_t firm_len = 0;
             uint8_t *firm_ptr = RT_NULL;
+
+            if(using_part == RT_NULL) {
+                LOG_W("using part is null, please start first.");
+                return -AGILE_MODBUS_EXCEPTION_NOT_DEFINED;
+            }
 
             if (data_len < 4) return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
 
@@ -202,8 +238,8 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
 
             _iap_step = IAP_STEP_WRITE;
 
-            if (fal_partition_write(app_part, _write_len, firm_ptr, firm_len) <= 0) {
-                LOG_E("write %s partition failed.", app_part->name);
+            if (fal_partition_write(using_part, _write_len, firm_ptr, firm_len) <= 0) {
+                LOG_E("write %s partition failed.", using_part->name);
                 ctx->send_buf[send_index++] = (_write_packet >> 8) & 0xff;
                 ctx->send_buf[send_index++] = _write_packet & 0xff;
                 ctx->send_buf[send_index++] = 0;
