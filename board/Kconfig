@@ -12,6 +12,7 @@ menu "Onboard Peripheral Drivers"
     menu "Enable File System"
         config BSP_USING_FS
             bool
+            select RT_USING_DFS_ROMFS
             default n
 
         config BSP_USING_SDCARD_FATFS

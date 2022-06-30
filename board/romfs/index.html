@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Firmware upload</title>
+
+    <style>
+        .progress {
+            width: 330px;
+            height: 20px;
+            border: 1px solid grey;
+            overflow: hidden;
+            float: left;
+            margin-right: 5px;
+        }
+
+        .step {
+            height: 100%;
+            width: 0;
+            background: rgba(21, 230, 108, 0.8);
+            transition-duration: 400ms;
+        }
+
+        .container {
+            background-color: white;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            height: 400px;
+            width: 400px;
+            margin: 0 auto;
+            margin-top: 30vh;
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .3);
+        }
+
+        .tip {
+            margin-top: 5px;
+            height: 120px;
+            border: 1px dotted rgb(104, 104, 104);
+        }
+
+        span {
+            margin: 5px 0px 5px 0px
+        }
+    </style>
+</head>
+
+<body style="background:rgb(231, 231, 231)">
+    <div class="container">
+        <div style="margin:10px 10px 10px 10px;">
+            <h3 style="color: grey;">Firmware Upload</h3>
+            <div style="margin-top: 30px;">
+                <div class='progress'>
+                    <div class="step"></div>
+                </div>
+                <div id="percentText" style="color: rgb(109, 108, 108);">
+                    0%
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <span>Type：</span>
+                <select name="file_type" id="file_type" style="width:80px">
+                    <option value="0">固件</option>
+                    <option value="1">文件系统</option>
+                </select>
+            </div>
+
+            <form action="" style="margin-top: 5px;">
+                <input id="fileupload" type="file" name='icon' style="color: transparent;">
+            </form>
+            <div class="tip">
+                <div style="margin-left: 10px;">
+                    文件名：<span id="fileNameTip"></span><br />
+                    文件大小：<span id="fileSizeTip"></span><br />
+                    文件类型：<span id="fileTypeTip"></span><br />
+                    成功写入：<span id="fileWrSucce"></span><br />
+                </div>
+
+            </div>
+            <input id="uploadBtn" type="button" value='Upload' disabled
+                style="width: 100%; height: 50px; margin-top:10px">
+        </div>
+    </div>
+</body>
+
+<script>
+    var uploadFileSize = 0;
+    var pt = document.getElementById('percentText');
+    var percent = 0;
+
+    document.getElementById("fileupload").onchange = function () {
+        var file_obj = document.getElementById("fileupload").files[0];
+        var fnt = document.getElementById('fileNameTip');
+        var fst = document.getElementById('fileSizeTip');
+        var ftt = document.getElementById('fileTypeTip');
+        var fws = document.getElementById('fileWrSucce');
+        var btn = document.getElementById("uploadBtn");
+
+        percent = 0;
+        pt.innerHTML = '0%';
+        fws.innerHTML = " ";
+        document.querySelector('.step').style.width = percent;
+
+        if (file_obj) {
+            if (file_obj.name.length > 20) {
+                fnt.innerHTML = file_obj.name.slice(0, 15) + " ... " + file_obj.name.slice(file_obj.name.length -
+                    5);
+            } else {
+                fnt.innerHTML = file_obj.name;
+            }
+            uploadFileSize = file_obj.size;
+            fst.innerHTML = file_obj.size + " bytes";
+            ftt.innerHTML = file_obj.type;
+            btn.disabled = false;
+        } else {
+            fnt.innerHTML = fst.innerHTML = ftt.innerHTML = "";
+            btn.disabled = true;
+        }
+    };
+
+    document.querySelector('input[type=button]').onclick = function () {
+        var xhr = new XMLHttpRequest();
+        var type = document.getElementById("file_type");
+        if (type.value == '0') {
+            xhr.open('post', '/app');
+        } else {
+            xhr.open('post', '/filesystem');
+        }
+
+        xhr.onload = function () {
+            if (xhr.status == 404) {
+                percent = 0;
+                pt.innerHTML = '0%';
+                document.querySelector('.step').style.width = percent;
+                alert("communication error");
+            } else {
+                var resp = JSON.parse(xhr.responseText);
+                document.getElementById("fileWrSucce").innerHTML = resp.filesize + " bytes";
+                if (resp.code == "0") {
+                    if (resp.filesize == uploadFileSize) {
+                        alert("upload success");
+                    } else {
+                        alert("upload failed");
+                        percent = 0;
+                        pt.innerHTML = '0%';
+                        document.querySelector('.step').style.width = percent;
+                    }
+                } else {
+                    alert("upload failed");
+                    percent = 0;
+                    pt.innerHTML = '0%';
+                    document.querySelector('.step').style.width = percent;
+                }
+            }
+        };
+        xhr.upload.onprogress = function (event) {
+            percent = (event.loaded / event.total * 100).toFixed(0) + '%';
+            pt.innerHTML = percent;
+            document.querySelector('.step').style.width = percent;
+        };
+        var data = new FormData(document.querySelector('form'));
+        xhr.send(data);
+    };
+</script>
+
+</html>

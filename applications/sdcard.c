@@ -9,8 +9,8 @@
 #include <rtdbg.h>
 
 #define SDCARD_DEVICE_NAME "sd0"
-#define SDCARD_ROOT        "/"
-#define SDCARD_FIRM_PATH   "/rtthread.rbl"
+#define SDCARD_ROOT        "/sdcard"
+#define SDCARD_FIRM_PATH   "/sdcard/rtthread.rbl"
 
 enum {
     SDCARD_CHECK_STEP_NULL = 0,

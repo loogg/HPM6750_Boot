@@ -2,6 +2,8 @@
 #include "boot.h"
 #include <board.h>
 #include <rthw.h>
+#include <dfs_fs.h>
+#include <dfs_romfs.h>
 #include "iap.h"
 #include "sdcard.h"
 
@@ -24,6 +26,12 @@ static int system_init(void) {
     g_system.download_part = fal_partition_find(DOWNLOAD_PART_NAME);
     if (g_system.download_part == RT_NULL) {
         LOG_E("Download partition not find.");
+        return -RT_ERROR;
+    }
+
+    rc = dfs_mount(RT_NULL, "/", "rom", 0, &(romfs_root));
+    if(rc != RT_EOK) {
+        LOG_E("rom mount to '/' failed!");
         return -RT_ERROR;
     }
 
