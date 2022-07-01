@@ -85,7 +85,7 @@ int wifi_spi_device_init(void)
 
     return 0;
 }
-INIT_APP_EXPORT(wifi_spi_device_init);
+//INIT_APP_EXPORT(wifi_spi_device_init);
 
 static int rw007_update(void)
 {

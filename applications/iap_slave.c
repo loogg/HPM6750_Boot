@@ -16,11 +16,7 @@ enum {
     IAP_CMD_UPDATE
 };
 
-enum {
-    IAP_FLASH_NULL = 0,
-    IAP_FLASH_APP,
-    IAP_FLASH_DOWNLOAD
-};
+enum { IAP_FLASH_NULL = 0, IAP_FLASH_APP, IAP_FLASH_DOWNLOAD };
 
 enum { IAP_STEP_NULL = 0, IAP_STEP_START, IAP_STEP_WRITE, IAP_STEP_UPDATE };
 
@@ -142,7 +138,7 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
                     return -AGILE_MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE;
             }
 
-            if(using_part != pre_part) {
+            if (using_part != pre_part) {
                 _iap_step = IAP_STEP_NULL;
             }
 
@@ -184,7 +180,7 @@ int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_in
             uint16_t firm_len = 0;
             uint8_t *firm_ptr = RT_NULL;
 
-            if(using_part == RT_NULL) {
+            if (using_part == RT_NULL) {
                 LOG_W("using part is null, please start first.");
                 return -AGILE_MODBUS_EXCEPTION_NOT_DEFINED;
             }

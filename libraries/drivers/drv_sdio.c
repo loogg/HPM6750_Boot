@@ -17,7 +17,7 @@
 #include "hpm_l1c_drv.h"
 
 #define DBG_TAG "drv.sdio"
-#define DBG_LVL DBG_WARNING
+#define DBG_LVL -1
 #include <rtdbg.h>
 
 

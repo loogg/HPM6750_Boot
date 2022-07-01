@@ -231,6 +231,9 @@
 /* AT commands */
 
 /* end of AT commands */
+#define LWIP_USING_DHCPD
+#define DHCPD_SERVER_IP "192.168.169.1"
+#define DHCPD_USING_ROUTER
 /* end of Network */
 
 /* VBUS(Virtual Software BUS) */
@@ -246,6 +249,19 @@
 
 /* IoT - internet of things */
 
+#define PKG_USING_WEBNET
+#define WEBNET_PORT 80
+#define WEBNET_CONN_MAX 16
+#define WEBNET_ROOT "/"
+
+/* Select supported modules */
+
+#define WEBNET_USING_CGI
+#define WEBNET_USING_UPLOAD
+#define WEBNET_CACHE_LEVEL 0
+/* end of Select supported modules */
+#define PKG_USING_WEBNET_V203
+#define PKG_WEBNET_VER_NUM 0x20003
 
 /* Wi-Fi */
 

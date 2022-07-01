@@ -4,12 +4,16 @@
 #include <rthw.h>
 #include <dfs_fs.h>
 #include <dfs_romfs.h>
+#include <wlan_mgnt.h>
+#include <webnet.h>
 #include "iap.h"
 #include "sdcard.h"
 
 #define DBG_TAG "system"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
+
+extern int wifi_spi_device_init(void);
 
 g_system_t g_system = {0};
 
@@ -61,6 +65,8 @@ void system_process(void) {
         case SYSTEM_STEP_WAIT_SYNC: {
             if (g_system.is_remain) {
                 LOG_I("sync:%u tick, enter boot", rt_tick_get() - _pre_tick);
+                wifi_spi_device_init();
+                rt_wlan_start_ap("HPM", "1234");
                 g_system.step = SYSTEM_STEP_BOOT_PROCESS;
                 break;
             }

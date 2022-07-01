@@ -2,9 +2,15 @@
 
 ## 说明
 
-- 本仓库为基于 `RT-Thread v4.0.5` 版本实现的 HPM6750 Bootloader，识别 `download` 分区中的固件并搬运到 `APP` 分区中运行。
+- 本仓库为基于 `RT-Thread v4.0.5` 版本实现的 HPM6750 Bootloader，可直接在 `HPM6750EVKMINI` 上使用。
 
-- 支持通过 `RS485` 强制进入 Bootloader 直接升级 app。
+- 识别 `download` 分区中的固件并搬运到 `app` 分区中运行。
+
+- 支持通过 `RS485` 强制进入 Bootloader 进行升级，可下载固件到 `download` 分区和 `app` 分区。
+
+- 支持读取 `SD` 卡中的固件进行升级。
+
+- 支持连接 `WIFI` 热点通过 `Web` 升级。
 
 - 使用 RT-Thread 固件打包工具将 bin 文件打包成 rbl 文件。该 Bootloader 不支持压缩和加密形式的固件。
 
@@ -15,6 +21,12 @@
 - 使用 `RT-Thread Studio` 导入工程
 
 ## 资源占用
+
+- XPI0
+
+- SDRAM 16M
+
+- SDXC0
 
 - RS485: MAX13487 自动收发使能
   - UART13:
@@ -44,11 +56,27 @@
 
 ## 固件升级
 
+### Bootloader 启动过程
+
+![pic1](./figures/1.png)
+
+**注意** ：SD 卡优先级最高，即 Bootloader 处理流程中 SD 卡检查通过就直接进行 SD 卡升级固件。
+
+![pic4](./figures/4.png)
+
 ### APP 中下载到 download 分区
 
 ![app_update](./figures/app_update.gif)
 
-### Bootloader 中通过 RS485 强制升级 APP
+### SD 卡固件升级
+
+SD 卡根目录下放入 `rtthread.rbl` 文件。
+
+![sd_update](./figures/sd_update.gif)
+
+### Web 升级
+
+### RS485 升级
 
 - 配置好串口并打开串口
 
@@ -62,11 +90,7 @@
 
 ![rs485_update](./figures/rs485_update.gif)
 
-### Bootloader 启动过程
-
-![pic1](./figures/1.png)
-
-### RS485 固件升级协议
+#### RS485 固件升级协议
 
 ![ModbusProtocol](./figures/ModbusProtocol.jpg)
 
