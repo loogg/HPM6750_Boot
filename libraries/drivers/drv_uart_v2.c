@@ -925,6 +925,7 @@ static int hpm_uart_putc(struct rt_serial_device *serial, char ch)
 {
     struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
     uart_send_byte(uart->uart_base, ch);
+    uart_flush(uart->uart_base);
 }
 
 static int hpm_uart_getc(struct rt_serial_device *serial)
@@ -1002,6 +1003,21 @@ static int hpm_uart_config(void)
 #endif
 #ifdef BSP_UART4_TX_USING_DMA
     uarts[HPM_UART4_INDEX].dma_flags |= RT_DEVICE_FLAG_DMA_TX;
+#endif
+#endif
+
+#ifdef BSP_USING_UART6
+#ifdef RT_SERIAL_USING_DMA
+    uarts[HPM_UART6_INDEX].dma_flags = 0;
+#endif
+    uarts[HPM_UART6_INDEX].serial->config = config;
+    uarts[HPM_UART6_INDEX].serial->config.rx_bufsz = BSP_UART6_RX_BUFSIZE;
+    uarts[HPM_UART6_INDEX].serial->config.tx_bufsz = BSP_UART6_TX_BUFSIZE;
+#ifdef BSP_UART6_RX_USING_DMA
+    uarts[HPM_UART6_INDEX].dma_flags |= RT_DEVICE_FLAG_DMA_RX;
+#endif
+#ifdef BSP_UART6_TX_USING_DMA
+    uarts[HPM_UART6_INDEX].dma_flags |= RT_DEVICE_FLAG_DMA_TX;
 #endif
 #endif
 

@@ -37,10 +37,11 @@
 
 - SDXC0
 
-- RS485: MAX13487 自动收发使能
-  - UART13:
-    - TX: PZ09
-    - RX: PZ08
+- RS485:
+  - UART6:
+    - TX: PE28
+    - RX: PE27
+  - RE: PF04
 
 - 电池备份域
   - HPM_BGPR->BATT_GPR7

@@ -3,16 +3,18 @@
 #include <agile_modbus.h>
 #include "iap_slave.h"
 #include <string.h>
+#include "drv_gpio.h"
+#include <rtdevice.h>
 
 #define DBG_TAG "IAP"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-/* 自动收发芯片 MAX13487 */
-#define RS485_EN_RX()
-#define RS485_EN_TX()
+#define RS485_RE_PIN  GET_PIN(F, 4)
+#define RS485_EN_RX() rt_pin_write(RS485_RE_PIN, PIN_LOW)
+#define RS485_EN_TX() rt_pin_write(RS485_RE_PIN, PIN_HIGH)
 
-#define RS485_DEVICE_NAME "uart13"
+#define RS485_DEVICE_NAME "uart6"
 
 static rt_sem_t _rx_notice = RT_NULL;
 static rt_device_t _rs485_dev = RT_NULL;
@@ -25,8 +27,7 @@ static rt_err_t rs485_rx_ind(rt_device_t dev, rt_size_t size) {
 
 static int rs485_init(void) {
     /* RS485 EN GPIO */
-    /* 自动收发芯片 MAX13487 */
-
+    rt_pin_mode(RS485_RE_PIN, PIN_MODE_OUTPUT);
     RS485_EN_RX();
 
     /* device init */
