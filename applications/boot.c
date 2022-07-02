@@ -186,7 +186,6 @@ void boot_app_enable(void) {
     ppor_sw_reset(HPM_PPOR, 10);
 }
 
-typedef void (*boot_app_func)(void);
 void boot_start_application(void) {
     uint32_t bkp_data = BOOT_BKP;
     BOOT_BKP = 0;
