@@ -136,7 +136,7 @@ int firm_upgrade(const struct fal_partition *src_part, firm_pkg_t *src_header,
     uint32_t total_length = 0;
     int length = 0;
 
-    if((src_header->raw_size + sizeof(firm_pkg_t)) > app_part->len) {
+    if ((src_header->raw_size + sizeof(firm_pkg_t)) > app_part->len) {
         LOG_W("The partition \'%s\' length is (%d), need (%d)!", app_part->name, app_part->len,
               src_header->raw_size + sizeof(firm_pkg_t));
 

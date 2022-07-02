@@ -5,9 +5,9 @@
 #include <dfs_fs.h>
 #include <dfs_romfs.h>
 #include <wlan_mgnt.h>
-#include <webnet.h>
 #include "iap.h"
 #include "sdcard.h"
+#include "internal_web.h"
 
 #define DBG_TAG "system"
 #define DBG_LVL DBG_LOG
@@ -34,7 +34,7 @@ static int system_init(void) {
     }
 
     rc = dfs_mount(RT_NULL, "/", "rom", 0, &(romfs_root));
-    if(rc != RT_EOK) {
+    if (rc != RT_EOK) {
         LOG_E("rom mount to '/' failed!");
         return -RT_ERROR;
     }
@@ -66,7 +66,8 @@ void system_process(void) {
             if (g_system.is_remain) {
                 LOG_I("sync:%u tick, enter boot", rt_tick_get() - _pre_tick);
                 wifi_spi_device_init();
-                rt_wlan_start_ap("HPM", "1234");
+                rt_wlan_start_ap("HPM", RT_NULL);
+                internal_web_init();
                 g_system.step = SYSTEM_STEP_BOOT_PROCESS;
                 break;
             }
@@ -81,6 +82,7 @@ void system_process(void) {
         case SYSTEM_STEP_BOOT_PROCESS: {
             if (g_system.is_quit) {
                 LOG_I("will jump.");
+                rt_thread_mdelay(100);
                 g_system.step = SYSTEM_STEP_UPDATE;
                 break;
             }

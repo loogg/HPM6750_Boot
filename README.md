@@ -26,6 +26,15 @@
 
 - SDRAM 16M
 
+- RW007
+  - SPI1:
+    - CS: PE03
+    - SCLK: PD31
+    - MOSI: PE04
+    - MISO: PD30
+    - INT: PE01
+    - RST: PE02
+
 - SDXC0
 
 - RS485: MAX13487 自动收发使能
@@ -76,6 +85,18 @@ SD 卡根目录下放入 `rtthread.rbl` 文件。
 
 ### Web 升级
 
+- 按住按键然后再 `上电` 或 `重启`，强制进入 Bootloader
+
+- 也可通过 RS485 方式强制进入 Bootloader
+
+#### 上传打包固件(rbl) 到 `download` 分区
+
+  ![web_download](./figures/web_download.gif)
+
+#### 上传原始固件(bin) 到 `app` 分区
+
+  ![web_app](./figures/web_app.gif)
+
 ### RS485 升级
 
 - 配置好串口并打开串口
@@ -84,11 +105,19 @@ SD 卡根目录下放入 `rtthread.rbl` 文件。
 
 - 点击 `结束同步` 按钮
 
+- 选择下载到 `download` 分区还是 `app` 分区
+
 - 选择文件开始升级
 
 - 地址一栏填 `0` 即为广播
 
-![rs485_update](./figures/rs485_update.gif)
+#### 下载打包固件(rbl) 到 `download` 分区
+
+  ![rs485_download](./figures/rs485_download.gif)
+
+#### 下载原始固件(bin) 到 `app` 分区
+
+  ![rs485_app](./figures/rs485_app.gif)
 
 #### RS485 固件升级协议
 

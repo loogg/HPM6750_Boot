@@ -1,6 +1,6 @@
 /*
  * COPYRIGHT (C) 2018, Real-Thread Information Technology Ltd
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
@@ -9,7 +9,7 @@
  * 2014-09-18     aozima       update command & response.
  * 2017-07-28     armink       fix auto reconnect feature
  * 2018-12-24     zyh          porting rw007 from rw009
- * 2019-02-25     zyh          porting rw007 to wlan 
+ * 2019-02-25     zyh          porting rw007 to wlan
  * 2020-02-28     shaoguoji    add spi transfer retry
  * 2020-07-09     zj           refactor the rw007
  */
@@ -84,7 +84,7 @@ static int wifi_data_transfer(struct rw007_spi *dev, uint16_t seq, uint8_t *rx_b
         if((send_packet->data_len == 0) || (send_packet->data_len > SPI_MAX_DATA_LEN))
         {
             rt_mp_free((void *)send_packet);
-            send_packet = RT_NULL;     
+            send_packet = RT_NULL;
         }
         else
         {
@@ -119,7 +119,7 @@ static int wifi_data_transfer(struct rw007_spi *dev, uint16_t seq, uint8_t *rx_b
                         SLAVE_INT_TIMEOUT,
                         RT_NULL) != RT_EOK)
     {
-        LOG_E("The wifi slave response timed out\r");
+        //LOG_E("The wifi slave response timed out\r");
     }
 
     /* Stage 2: Receive response from rw007 */
@@ -136,7 +136,7 @@ static int wifi_data_transfer(struct rw007_spi *dev, uint16_t seq, uint8_t *rx_b
 
     /* Receive response from rw007 */
     rt_spi_device->bus->ops->xfer(rt_spi_device, &message);
-    
+
     /* Check response's magic word and seq */
     if ((resp.magic1 != SLAVE_MAGIC1) || (resp.magic2 != SLAVE_MAGIC2) || (resp.seq != seq) || (resp.type != slave_data_phase))
     {
@@ -221,7 +221,7 @@ _txerr:
     message.cs_release = 1;
     rt_spi_device->bus->ops->xfer(rt_spi_device, &message);
 
-    rt_spi_release_bus(rt_spi_device);  // End a SPI transmit 
+    rt_spi_release_bus(rt_spi_device);  // End a SPI transmit
 _cmderr:
     rt_thread_delay(1);
     return TRANSFER_DATA_ERROR;
@@ -267,7 +267,7 @@ static int spi_wifi_transfer(struct rw007_spi *dev)
         LOG_E("rw007 transfer failed\r");
         goto _err;
     }
-    
+
     return result;
 _err:
     if(rx_buffer)
@@ -320,7 +320,7 @@ static void wifi_data_process_thread_entry(void *parameter)
                 }
                 else
                 {
-                    if(resp->cmd == RT_WLAN_DEV_EVT_AP_START || resp->cmd == RT_WLAN_DEV_EVT_AP_STOP || 
+                    if(resp->cmd == RT_WLAN_DEV_EVT_AP_START || resp->cmd == RT_WLAN_DEV_EVT_AP_STOP ||
                        resp->cmd == RT_WLAN_DEV_EVT_AP_ASSOCIATED || resp->cmd == RT_WLAN_DEV_EVT_AP_DISASSOCIATED)
                     {
                         /* indicate ap device event */
@@ -366,7 +366,7 @@ static void spi_wifi_data_thread_entry(void *parameter)
     rt_bool_t empty_read = RT_TRUE;
     rt_uint32_t event;
     int state;
-    
+
     while (1)
     {
         /* receive first event */
@@ -376,7 +376,7 @@ static void spi_wifi_data_thread_entry(void *parameter)
                           RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                           RT_WAITING_FOREVER,
                           &event) != RT_EOK)
-                          
+
         {
             continue;
         }
@@ -389,7 +389,7 @@ static void spi_wifi_data_thread_entry(void *parameter)
             rt_event_send(&spi_wifi_data_event, RW007_SLAVE_INT);
             empty_read = RT_TRUE;
         }
-        else 
+        else
         {
             if ((state == TRANSFER_DATA_SUCCESS) && (empty_read == RT_TRUE))
             {
@@ -445,9 +445,9 @@ rt_inline rt_err_t spi_set_data(struct rt_wlan_device *wlan, RW00x_CMD COMMAND, 
     rt_uint32_t result_event;
     rt_err_t result = RT_EOK;
     spi_send_cmd(hspi, COMMAND, buffer, len);
-    if(rt_event_recv(hspi->rw007_cmd_event, 
-                    RW00x_CMD_RESP_EVENT(COMMAND), 
-                    RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, 
+    if(rt_event_recv(hspi->rw007_cmd_event,
+                    RW00x_CMD_RESP_EVENT(COMMAND),
+                    RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR,
                     rt_tick_from_millisecond(10000),
                     &result_event) != RT_EOK)
     {
@@ -470,9 +470,9 @@ rt_inline rt_err_t spi_get_data(struct rt_wlan_device *wlan, RW00x_CMD COMMAND, 
     rt_uint32_t result_event;
     rt_err_t result = RT_EOK;
     spi_send_cmd(hspi, COMMAND, RT_NULL, 0);
-    if(rt_event_recv(hspi->rw007_cmd_event, 
-                    RW00x_CMD_RESP_EVENT(COMMAND), 
-                    RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, 
+    if(rt_event_recv(hspi->rw007_cmd_event,
+                    RW00x_CMD_RESP_EVENT(COMMAND),
+                    RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR,
                     rt_tick_from_millisecond(10000),
                     &result_event) != RT_EOK)
     {
@@ -748,7 +748,7 @@ rt_err_t rt_hw_wifi_init(const char *spi_device_name)
                &rw007_spi.spi_tx_mb_pool[0],
                SPI_TX_POOL_SIZE,
                RT_IPC_FLAG_PRIO);
-    
+
     /* init spi recv mempool */
     rt_mp_init(&rw007_spi.spi_rx_mp,
                "spi_rx",
