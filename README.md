@@ -4,9 +4,13 @@
 
 - 本仓库为基于 `RT-Thread v4.0.5` 版本实现的 HPM6750 Bootloader，可直接在 `HPM6750EVKMINI` 上使用。
 
+- 绝对安全切入 APP
+
 - 识别 `download` 分区中的固件并搬运到 `app` 分区中运行。
 
 - 支持通过 `RS485` 强制进入 Bootloader 进行升级，可下载固件到 `download` 分区和 `app` 分区。
+
+- 支持通过按键强制进入 Bootloader。
 
 - 支持读取 `SD` 卡中的固件进行升级。
 
@@ -19,6 +23,8 @@
 - RS485 升级工具在 tools/rs485_update 目录下。
 
 - 使用 `RT-Thread Studio` 导入工程
+
+![HPM6750EVKMINI](./figures/HPM6750EVKMINI.png)
 
 ## 资源占用
 
@@ -35,7 +41,9 @@
     - INT: PE01
     - RST: PE02
 
-- SDXC0
+- SDXC1
+
+- 按键: PF01 (低电平有效)
 
 - RS485:
   - UART6:

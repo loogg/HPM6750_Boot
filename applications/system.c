@@ -8,6 +8,7 @@
 #include "iap.h"
 #include "sdcard.h"
 #include "internal_web.h"
+#include "key.h"
 
 #define DBG_TAG "system"
 #define DBG_LVL DBG_LOG
@@ -47,6 +48,7 @@ void system_process(void) {
 
     if ((g_system.step == SYSTEM_STEP_WAIT_SYNC) || (g_system.step == SYSTEM_STEP_BOOT_PROCESS)) {
         if (iap_process() != RT_EOK) g_system.step = SYSTEM_STEP_ERROR;
+        if (key_process() != RT_EOK) g_system.step = SYSTEM_STEP_ERROR;
         if (sdcard_check() == RT_EOK) g_system.step = SYSTEM_STEP_SDCARD;
     }
 
